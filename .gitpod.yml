@@ -16,7 +16,7 @@ tasks:
 vscode:
   extensions:
     - 42Crunch.vscode-openapi
-    - cweijan.vscode-postgresql-client2
+    # - cweijan.vscode-postgresql-client2
     - ms-python.python
 
     - rangav.vscode-thunder-client

@@ -18,6 +18,8 @@ services:
       - "4567:4567"
     volumes:
       - ./backend-flask:/backend-flask
+    depends_on:
+      - xray-daemon
   frontend-react-js:
     environment:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
@@ -59,6 +61,7 @@ services:
       - "xray -o -b xray-daemon:2000"
     ports:
       - 2000:2000/udp
+    restart: always
 
 volumes:
   db:
