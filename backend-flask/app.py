@@ -43,7 +43,7 @@ frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
 
-xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url, plugins=[])
 XRayMiddleware(app, xray_recorder)
 
 cors = CORS(
