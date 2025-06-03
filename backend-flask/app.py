@@ -25,9 +25,25 @@ from opentelemetry.sdk.trace.export import BatchSpanProcessor
 # X-Ray -----
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
-
 xray_url = os.getenv('AWS_XRAY_URL')
 
+# Cloud watch logs
+import watchtower, logging
+import boto3
+
+if not os.environ.get("AWS_REGION"):
+    os.environ["AWS_REGION"] = "ap-south-1"  # Change to your desired AWS region
+
+
+# Initialize and configure logger for cloud watch logs.
+LOGGER = logging.getLogger(__name__)
+LOGGER.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+# cw_handler = watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_session=boto3.session.Session(region_name=os.environ["AWS_REGION"]))
+
+LOGGER.addHandler(console_handler)
+LOGGER.addHandler(watchtower.CloudWatchLogHandler())
+LOGGER.info('Welcome to flask backend service')
 
 # Initialize tracing and an exporter that can send data to Honeycomb
 provider = TracerProvider()
@@ -43,8 +59,12 @@ frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
 
-xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url, context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
+# Initialize Xray tracing middleware.
+
+xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
 XRayMiddleware(app, xray_recorder)
+
+
 
 cors = CORS(
   app, 
@@ -53,6 +73,12 @@ cors = CORS(
   allow_headers="content-type,if-modified-since",
   methods="OPTIONS,GET,HEAD,POST"
 )
+
+# @app.after_request
+# def after_request(response):
+#     timestamp = strftime('[%Y-%b-%d %H:%M]')
+#     LOGGER.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
+#     return response
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
