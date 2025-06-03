@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta, timezone
-from aws_xray_sdk.core import xray_recorder
 class NotificationsActivities:
   def run():
-    segment = xray_recorder.begin_segment('notification_data')
-    sub_segment = xray_recorder.begin_subsegment('notication_time')
+    
     now = datetime.now(timezone.utc).astimezone()
     results = [{
       'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
@@ -36,9 +34,5 @@ class NotificationsActivities:
     },
     
     ]
-    segment.put_metadata('value', results, 'data_fetched')
-    sub_segment.put_annotation('request_time', now)
-
-    xray_recorder.end_subsegment()
-    xray_recorder.end_segment()
+    
     return results

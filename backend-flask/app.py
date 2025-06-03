@@ -43,7 +43,7 @@ frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
 
-xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url, plugins=[])
+xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url, context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
 XRayMiddleware(app, xray_recorder)
 
 cors = CORS(
@@ -99,8 +99,20 @@ def data_home():
 
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notifications():
-  data = NotificationsActivities.run()
-  return data, 200
+  # segment = xray_recorder.begin_segment('notification_data')
+  sub_segment = xray_recorder.begin_subsegment('notication_handler')
+  try:
+    now = datetime.now(timezone.utc).astimezone()
+    data = NotificationsActivities.run()
+    sub_segment.put_metadata('value', data, 'data_fetched')
+    sub_segment.put_annotation('request_time', str(now))
+    return data, 200
+  finally:
+    xray_recorder.end_subsegment()
+
+  # xray_recorder.end_subsegment()
+  # xray_recorder.end_segment()
+  
 
 @app.route("/api/activities/@<string:handle>", methods=['GET'])
 def data_handle(handle):
