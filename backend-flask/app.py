@@ -34,16 +34,15 @@ import boto3
 if not os.environ.get("AWS_REGION"):
     os.environ["AWS_REGION"] = "ap-south-1"  # Change to your desired AWS region
 
-
+AWS_REGION = os.getenv('AWS_REGION', 'ap-south-1')
 # Initialize and configure logger for cloud watch logs.
-LOGGER = logging.getLogger(__name__)
-LOGGER.setLevel(logging.DEBUG)
-console_handler = logging.StreamHandler()
-# cw_handler = watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_session=boto3.session.Session(region_name=os.environ["AWS_REGION"]))
+# LOGGER = logging.getLogger(__name__)
+# LOGGER.setLevel(logging.INFO)
+# console_handler = logging.StreamHandler()
+# LOGGER.addHandler(console_handler)
 
-LOGGER.addHandler(console_handler)
-LOGGER.addHandler(watchtower.CloudWatchLogHandler())
-LOGGER.info('Welcome to flask backend service')
+# CloudWatch logging
+
 
 # Initialize tracing and an exporter that can send data to Honeycomb
 provider = TracerProvider()
@@ -61,10 +60,12 @@ origins = [frontend, backend]
 
 # Initialize Xray tracing middleware.
 
-xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
-XRayMiddleware(app, xray_recorder)
+# xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
+# XRayMiddleware(app, xray_recorder)
 
-
+# CloudWatch logging
+# LOGGER.addHandler(watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_client=boto3.client("logs", region_name="ap-south-1")))
+# LOGGER.info("Hi")
 
 cors = CORS(
   app, 
@@ -117,6 +118,7 @@ def data_create_message():
 @tracer.start_as_current_span("home.calls")
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
+  # data = HomeActivities.run(logger=LOGGER)
   data = HomeActivities.run()
   with tracer.start_as_current_span(name="hello"):
     span = trace.get_current_span()
@@ -126,15 +128,16 @@ def data_home():
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notifications():
   # segment = xray_recorder.begin_segment('notification_data')
-  sub_segment = xray_recorder.begin_subsegment('notication_handler')
+  # sub_segment = xray_recorder.begin_subsegment('notication_handler')
   try:
     now = datetime.now(timezone.utc).astimezone()
     data = NotificationsActivities.run()
-    sub_segment.put_metadata('value', data, 'data_fetched')
-    sub_segment.put_annotation('request_time', str(now))
+    # sub_segment.put_metadata('value', data, 'data_fetched')
+    # sub_segment.put_annotation('request_time', str(now))
     return data, 200
   finally:
-    xray_recorder.end_subsegment()
+    # xray_recorder.end_subsegment()
+    return
 
   # xray_recorder.end_subsegment()
   # xray_recorder.end_segment()
