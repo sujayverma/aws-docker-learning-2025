@@ -11,3 +11,4 @@ aws-xray-sdk
 watchtower>=3.0.0
 boto3
 python-dotenv
+rollbar

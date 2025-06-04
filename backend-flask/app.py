@@ -31,6 +31,13 @@ xray_url = os.getenv('AWS_XRAY_URL')
 import watchtower, logging
 import boto3
 
+# Rollbar 
+import rollbar
+import rollbar.contrib.flask
+from flask import got_request_exception
+
+
+
 if not os.environ.get("AWS_REGION"):
     os.environ["AWS_REGION"] = "ap-south-1"  # Change to your desired AWS region
 
@@ -74,6 +81,21 @@ cors = CORS(
   allow_headers="content-type,if-modified-since",
   methods="OPTIONS,GET,HEAD,POST"
 )
+
+with app.app_context():
+    """init rollbar module"""
+    rollbar.init(
+        # access token
+        'a4b291483a264814bfb6333d59e661c7',
+        # environment name - any string, like 'production' or 'development'
+        'flasktest',
+        # server root directory, makes tracebacks prettier
+        root=os.path.dirname(os.path.realpath(__file__)),
+        # flask already sets up logging
+        allow_logging_basic_config=False)
+
+    # send exceptions from `app` to rollbar, using flask's signal system.
+    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
 # @app.after_request
 # def after_request(response):
