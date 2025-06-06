@@ -106,7 +106,7 @@ with app.app_context():
 
 @app.route('/rollbar/test')
 def rollbar_test():
-  rollbar.report_exception('Hello World!', 'warning')
+  rollbar.report_message('Hello World!', 'warning')
   return 'Hello World!'
 
 @app.route('/rollbar/hello')
