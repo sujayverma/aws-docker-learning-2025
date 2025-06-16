@@ -1,6 +1,7 @@
 import './ProfileInfo.css';
 import {ReactComponent as ElipsesIcon} from './svg/elipses.svg';
 import React from "react";
+import { Auth } from 'aws-amplify';
 
 // [TODO] Authenication
 import Cookies from 'js-cookie'
@@ -24,9 +25,19 @@ export default function ProfileInfo(props) {
   //   window.location.href = "/"
   // }
 
+  // const signOut = async () => {
+  //   try {
+  //       await AuthenticatorAssertionResponse.signOut({ global: true});
+  //       window.location.href = "/"
+  //   } catch (error) {
+  //     console.log('error signing out: ', error);
+  //   }
+   
+  // }
+
   const signOut = async () => {
     try {
-        await AuthenticatorAssertionResponse.signOut({ global: true});
+        await Auth.signOut({ global: true });
         window.location.href = "/"
     } catch (error) {
       console.log('error signing out: ', error);
