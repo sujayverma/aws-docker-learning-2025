@@ -169,15 +169,17 @@ def data_notifications():
   #     'handle':  'Sujay Barma',
   #     'message': 'Learning Cloud',}]
   # return results, 200
-  try:
-    now = datetime.now(timezone.utc).astimezone()
-    data = NotificationsActivities.run()
+  data = NotificationsActivities.run()
+  return data, 200
+  # try:
+    # now = datetime.now(timezone.utc).astimezone()
+    # data = NotificationsActivities.run()
     # sub_segment.put_metadata('value', data, 'data_fetched')
     # sub_segment.put_annotation('request_time', str(now))
-    return data, 200
-  finally:
+    # return data, 200
+  # finally:
     # xray_recorder.end_subsegment()
-    return
+    # return
 
   # xray_recorder.end_subsegment()
   # xray_recorder.end_segment()
