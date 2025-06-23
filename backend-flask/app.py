@@ -164,11 +164,11 @@ def data_home():
 def data_notifications():
   # segment = xray_recorder.begin_segment('notification_data')
   # sub_segment = xray_recorder.begin_subsegment('notication_handler')
-  results = [{
-      'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
-      'handle':  'Sujay Barma',
-      'message': 'Learning Cloud',}]
-  return results, 200
+  # results = [{
+  #     'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
+  #     'handle':  'Sujay Barma',
+  #     'message': 'Learning Cloud',}]
+  # return results, 200
   try:
     now = datetime.now(timezone.utc).astimezone()
     data = NotificationsActivities.run()
