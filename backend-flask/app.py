@@ -161,8 +161,10 @@ def data_home():
   return data, 200
 
 @app.route("/api/activities/notifications", methods=['GET'])
+@xray_recorder.capture('Hit the Notification endpoint')
 def data_notifications():
   # segment = xray_recorder.begin_segment('notification_data')
+  
   sub_segment = xray_recorder.begin_subsegment('notication_handler')
   # results = [{
   #     'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
