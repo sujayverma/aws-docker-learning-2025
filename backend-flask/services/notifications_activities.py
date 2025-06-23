@@ -6,7 +6,7 @@ class NotificationsActivities:
     results = [{
       'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
       'handle':  'Sujay Barma',
-      'message': 'Learning Cloud',
+      'message': 'Learning Cloud Test',
       'created_at': (now - timedelta(days=2)).isoformat(),
       'expires_at': (now + timedelta(days=5)).isoformat(),
       'likes_count': 5,
