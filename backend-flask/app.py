@@ -67,8 +67,8 @@ origins = [frontend, backend]
 
 # Initialize Xray tracing middleware.
 
-# xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
-# XRayMiddleware(app, xray_recorder)
+xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
+XRayMiddleware(app, xray_recorder)
 
 # CloudWatch logging
 # LOGGER.addHandler(watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_client=boto3.client("logs", region_name="ap-south-1")))
@@ -82,21 +82,21 @@ cors = CORS(
   methods="OPTIONS,GET,HEAD,POST"
 )
 
-rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
-with app.app_context():
-    """init rollbar module"""
-    rollbar.init(
-        # access token
-        rollbar_access_token,
-        # environment name - any string, like 'production' or 'development'
-        'backend-flask',
-        # server root directory, makes tracebacks prettier
-        root=os.path.dirname(os.path.realpath(__file__)),
-        # flask already sets up logging
-        allow_logging_basic_config=False)
+# rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
+# with app.app_context():
+#     """init rollbar module"""
+#     rollbar.init(
+#         # access token
+#         rollbar_access_token,
+#         # environment name - any string, like 'production' or 'development'
+#         'backend-flask',
+#         # server root directory, makes tracebacks prettier
+#         root=os.path.dirname(os.path.realpath(__file__)),
+#         # flask already sets up logging
+#         allow_logging_basic_config=False)
 
-    # send exceptions from `app` to rollbar, using flask's signal system.
-    got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
+#     # send exceptions from `app` to rollbar, using flask's signal system.
+#     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
 # @app.after_request
 # def after_request(response):
@@ -104,17 +104,17 @@ with app.app_context():
 #     LOGGER.error('%s %s %s %s %s %s', timestamp, request.remote_addr, request.method, request.scheme, request.full_path, response.status)
 #     return response
 
-@app.route('/rollbar/test')
-def rollbar_test():
-  rollbar.report_message('Hello World!', 'warning')
-  return 'Hello World!'
+# @app.route('/rollbar/test')
+# def rollbar_test():
+#   rollbar.report_message('Hello World!', 'warning')
+#   return 'Hello World!'
 
-@app.route('/rollbar/hello')
-def hello():
-    print("DEBUG - in hello()")
-    x = None
-    x[5]
-    return "Hello World!"
+# @app.route('/rollbar/hello')
+# def hello():
+#     print("DEBUG - in hello()")
+#     x = None
+#     x[5]
+#     return "Hello World!"
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
@@ -163,15 +163,15 @@ def data_home():
 @app.route("/api/activities/notifications", methods=['GET'])
 def data_notifications():
   # segment = xray_recorder.begin_segment('notification_data')
-  # sub_segment = xray_recorder.begin_subsegment('notication_handler')
+  sub_segment = xray_recorder.begin_subsegment('notication_handler')
   try:
     now = datetime.now(timezone.utc).astimezone()
     data = NotificationsActivities.run()
-    # sub_segment.put_metadata('value', data, 'data_fetched')
-    # sub_segment.put_annotation('request_time', str(now))
+    sub_segment.put_metadata('value', data, 'data_fetched')
+    sub_segment.put_annotation('request_time', str(now))
     return data, 200
   finally:
-    # xray_recorder.end_subsegment()
+    xray_recorder.end_subsegment()
     return
 
   # xray_recorder.end_subsegment()
