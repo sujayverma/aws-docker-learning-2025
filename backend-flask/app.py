@@ -67,8 +67,8 @@ origins = [frontend, backend]
 
 # Initialize Xray tracing middleware.
 
-xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
-XRayMiddleware(app, xray_recorder)
+# xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
+# XRayMiddleware(app, xray_recorder)
 
 # CloudWatch logging
 # LOGGER.addHandler(watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_client=boto3.client("logs", region_name="ap-south-1")))
@@ -161,21 +161,17 @@ def data_home():
   return data, 200
 
 @app.route("/api/activities/notifications", methods=['GET'])
-@xray_recorder.capture('Hit the Notification endpoint')
+# @xray_recorder.capture('Hit the Notification endpoint')
 def data_notifications():
   # segment = xray_recorder.begin_segment('notification_data')
   
-  sub_segment = xray_recorder.begin_subsegment('notication_handler')
-  # results = [{
-  #     'uuid': '68f126b0-1ceb-4a33-88be-d90fa7109eee',
-  #     'handle':  'Sujay Barma',
-  #     'message': 'Learning Cloud',}]
-  # return results, 200
+  # sub_segment = xray_recorder.begin_subsegment('notication_handler')
+ 
   now = datetime.now(timezone.utc).astimezone()
   data = NotificationsActivities.run()
-  sub_segment.put_metadata('value', data, 'data_fetched')
-  sub_segment.put_annotation('request_time', str(now))
-  xray_recorder.end_subsegment()
+  # sub_segment.put_metadata('value', data, 'data_fetched')
+  # sub_segment.put_annotation('request_time', str(now))
+  # xray_recorder.end_subsegment()
   return data, 200
   # try:
     # now = datetime.now(timezone.utc).astimezone()
