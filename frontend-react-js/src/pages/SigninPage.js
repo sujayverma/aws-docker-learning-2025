@@ -4,6 +4,7 @@ import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
+import { signIn, confirmSignIn } from 'aws-amplify/auth'
 
 // [TODO] Authenication
 // import Cookies from 'js-cookie'
@@ -32,13 +33,17 @@ export default function SigninPage() {
     setErrors([]);
     console.log('Email: ', email);
     console.log('password: ', password);
-    Auth.signIn(email, password)
+    await signIn({
+      username: email,
+      password: password,
+    })
     .then(user => {
       console.log('user',user)
       localStorage.setItem("access_token", user.signInUserSession.accessToken.jwtToken)
       window.location.href = "/"
     })
     .catch(error => { 
+      console.log('HELLO');
       console.log(error);
       if (error.code === 'UserNotConfirmedException') {
         window.location.href = "/confirm"
@@ -73,7 +78,7 @@ export default function SigninPage() {
           <h2>Sign into your Cruddur account</h2>
           <div className='fields'>
             <div className='field text_field username'>
-              <label>Email</label>
+              <label>Username</label>
               <input
                 type="text"
                 value={email}
