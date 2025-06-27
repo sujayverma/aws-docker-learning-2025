@@ -4,7 +4,7 @@ import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
-import { signIn, confirmSignIn } from 'aws-amplify/auth'
+import { signIn, fetchAuthSession  } from 'aws-amplify/auth'
 
 // [TODO] Authenication
 // import Cookies from 'js-cookie'
@@ -30,26 +30,31 @@ export default function SigninPage() {
 
   const onsubmit = async (event) => {
     event.preventDefault();
-    setErrors([]);
+    // setErrors([]);
     console.log('Email: ', email);
     console.log('password: ', password);
-    await signIn({
-      username: email,
-      password: password,
-    })
-    .then(user => {
-      console.log('user',user)
-      localStorage.setItem("access_token", user.signInUserSession.accessToken.jwtToken)
-      window.location.href = "/"
-    })
-    .catch(error => { 
+    try {
+      const user = await signIn({
+        username: email,
+        password: password,
+      });
+      const session = await fetchAuthSession();
+      const accessToken = session.tokens?.accessToken?.toString();
+      if(accessToken) {
+        localStorage.setItem("access_token", accessToken);
+      }
+      window.location.href = "/";
+    }
+    catch(error) {
       console.log('HELLO');
       console.log(error);
       if (error.code === 'UserNotConfirmedException') {
         window.location.href = "/confirm"
       }
-      setErrors([error.message])
-    });
+      setErrors(error.message);
+    }
+    
+
     return false
   }
 
