@@ -33,21 +33,7 @@ export default function ConfirmationPage() {
     event.preventDefault();
     console.log('ConfirmationPage.onsubmit')
     console.log('Email: ', email)
-    // [TODO] Authenication
-    // if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null){
-    //   setErrors("You need to provide an email in order to send Resend Activiation Code")   
-    // } else {
-    //   if (Cookies.get('user.email') === email){
-    //     if (Cookies.get('user.confirmation_code') === code){
-    //       Cookies.set('user.logged_in',true)
-    //       window.location.href = "/"
-    //     } else {
-    //       setErrors("Code is not valid")
-    //     }
-    //   } else {
-    //     setErrors("Email is invalid or cannot be found.")   
-    //   }
-    // }
+    
     try {
       const { isSignUpComplete, nextStep } = await confirmSignUp({
             username: email,
@@ -55,8 +41,6 @@ export default function ConfirmationPage() {
           });
       
       if(isSignUpComplete && nextStep.signUpStep === 'DONE') {
-        // const { nextStep } = await autoSignIn();
-        // console.log('Nxt: ', nextStep);
         navigate("/signin"); // ✅ React-router way
       }
         
@@ -101,14 +85,6 @@ export default function ConfirmationPage() {
         >
           <h2>Confirm your Email</h2>
           <div className='fields'>
-            <div className='field text_field email'>
-              <label>Email</label>
-              <input
-                type="text"
-                value={email}
-                onChange={email_onchange} 
-              />
-            </div>
             <div className='field text_field code'>
               <label>Confirmation Code</label>
               <input

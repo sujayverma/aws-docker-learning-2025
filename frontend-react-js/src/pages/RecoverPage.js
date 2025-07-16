@@ -2,6 +2,7 @@ import './RecoverPage.css';
 import React from "react";
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
+import { resetPassword } from 'aws-amplify/auth';
 
 export default function RecoverPage() {
   // Username is Eamil
@@ -15,6 +16,15 @@ export default function RecoverPage() {
   const onsubmit_send_code = async (event) => {
     event.preventDefault();
     console.log('onsubmit_send_code')
+    try {
+      const { nextStep }  = await resetPassword({
+        username: username
+      });
+      console.log('Next: ', nextStep)
+    } catch(error) {
+      console.log('Err: ', error)
+    }
+    
     return false
   }
   const onsubmit_confirm_code = async (event) => {
