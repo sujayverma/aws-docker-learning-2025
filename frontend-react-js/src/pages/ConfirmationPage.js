@@ -2,11 +2,14 @@ import './ConfirmationPage.css';
 import React from "react";
 import { useParams } from 'react-router-dom';
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
+import { confirmSignUp, autoSignIn } from 'aws-amplify/auth';
+import { useNavigate } from 'react-router-dom';
 
 // [TODO] Authenication
 import Cookies from 'js-cookie'
 
 export default function ConfirmationPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = React.useState('');
   const [code, setCode] = React.useState('');
   const [errors, setErrors] = React.useState('');
@@ -29,22 +32,40 @@ export default function ConfirmationPage() {
   const onsubmit = async (event) => {
     event.preventDefault();
     console.log('ConfirmationPage.onsubmit')
+    console.log('Email: ', email)
     // [TODO] Authenication
-    if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null){
-      setErrors("You need to provide an email in order to send Resend Activiation Code")   
-    } else {
-      if (Cookies.get('user.email') === email){
-        if (Cookies.get('user.confirmation_code') === code){
-          Cookies.set('user.logged_in',true)
-          window.location.href = "/"
-        } else {
-          setErrors("Code is not valid")
-        }
-      } else {
-        setErrors("Email is invalid or cannot be found.")   
+    // if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null){
+    //   setErrors("You need to provide an email in order to send Resend Activiation Code")   
+    // } else {
+    //   if (Cookies.get('user.email') === email){
+    //     if (Cookies.get('user.confirmation_code') === code){
+    //       Cookies.set('user.logged_in',true)
+    //       window.location.href = "/"
+    //     } else {
+    //       setErrors("Code is not valid")
+    //     }
+    //   } else {
+    //     setErrors("Email is invalid or cannot be found.")   
+    //   }
+    // }
+    try {
+      const { isSignUpComplete, nextStep } = await confirmSignUp({
+            username: email,
+            confirmationCode: code
+          });
+      
+      if(isSignUpComplete && nextStep.signUpStep === 'DONE') {
+        // const { nextStep } = await autoSignIn();
+        // console.log('Nxt: ', nextStep);
+        navigate("/signin"); // ✅ React-router way
       }
+        
+
+    } catch(error) {
+      console.log('Err', error);
+      return false;
     }
-    return false
+    
   }
 
   let el_errors;
@@ -61,8 +82,10 @@ export default function ConfirmationPage() {
   }
 
   React.useEffect(()=>{
-    if (params.email) {
-      setEmail(params.email)
+    const queryParams = new URLSearchParams(window.location.search);
+    const emailParam = queryParams.get("email");
+    if (emailParam) {
+      setEmail(emailParam);
     }
   }, [])
 
