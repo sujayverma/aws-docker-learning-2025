@@ -2,7 +2,7 @@ import './RecoverPage.css';
 import React from "react";
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
-import { resetPassword } from 'aws-amplify/auth';
+import { resetPassword, confirmResetPassword } from 'aws-amplify/auth';
 
 export default function RecoverPage() {
   // Username is Eamil
@@ -21,6 +21,7 @@ export default function RecoverPage() {
         username: username
       });
       console.log('Next: ', nextStep)
+      setFormState('confirm_code');
     } catch(error) {
       console.log('Err: ', error)
     }
@@ -30,6 +31,23 @@ export default function RecoverPage() {
   const onsubmit_confirm_code = async (event) => {
     event.preventDefault();
     console.log('onsubmit_confirm_code')
+    if(password != passwordAgain) {
+      console.log('Password and confirm password need to be same');
+      return false;
+    }
+      
+    try {
+       await confirmResetPassword({
+        username: username,
+        confirmationCode: code,
+        newPassword: password,
+      });
+      console.log('New Paasword: ')
+      setFormState('success')
+
+    } catch(error) {
+      console.log(error);
+    }
     return false
   }
 
