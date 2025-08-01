@@ -30,7 +30,6 @@ export default function SigninPage() {
 
   const onsubmit = async (event) => {
     event.preventDefault();
-    // setErrors([]);
     console.log('Email: ', email);
     console.log('password: ', password);
     try {
@@ -41,13 +40,12 @@ export default function SigninPage() {
       const session = await fetchAuthSession();
       const accessToken = session.tokens?.accessToken?.toString();
       if(accessToken) {
+       
         localStorage.setItem("access_token", accessToken);
       }
       window.location.href = "/";
     }
     catch(error) {
-      console.log('HELLO');
-      console.log(error);
       if (error.code === 'UserNotConfirmedException') {
         window.location.href = "/confirm"
       }

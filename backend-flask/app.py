@@ -36,6 +36,15 @@ import rollbar
 import rollbar.contrib.flask
 from flask import got_request_exception
 
+import logging
+
+logging.basicConfig(
+    level=logging.DEBUG,  # <== this is critical
+    format='%(asctime)s %(levelname)s: %(message)s',
+)
+
+
+
 
 
 if not os.environ.get("AWS_REGION"):
@@ -64,7 +73,7 @@ RequestsInstrumentor().instrument()
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
-
+app.logger.setLevel(logging.DEBUG)
 # Initialize Xray tracing middleware.
 
 xray_recorder.configure(service='backend-flask', context_missing='LOG_ERROR', daemon_address='xray-daemon:2000', plugins=[])
@@ -74,12 +83,20 @@ XRayMiddleware(app, xray_recorder)
 # LOGGER.addHandler(watchtower.CloudWatchLogHandler(log_group='backend-flask', boto3_client=boto3.client("logs", region_name="ap-south-1")))
 # LOGGER.info("Hi")
 
+# cors = CORS(
+#   app, 
+#   resources={r"/api/*": {"origins": origins}},
+#   expose_headers="location,link",
+#   allow_headers="content-type,if-modified-since",
+#   methods="OPTIONS,GET,HEAD,POST"
+# )
+# cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 cors = CORS(
-  app, 
-  resources={r"/api/*": {"origins": origins}},
-  expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
-  methods="OPTIONS,GET,HEAD,POST"
+    app,
+    resources={r"/api/*": {"origins": origins}},
+    expose_headers=["Location", "Link"],
+    allow_headers=["Content-Type", "Authorization", "If-Modified-Since"],
+    methods=["OPTIONS", "GET", "HEAD", "POST"]
 )
 
 # rollbar_access_token = os.getenv('ROLLBAR_ACCESS_TOKEN')
@@ -115,6 +132,11 @@ cors = CORS(
 #     x = None
 #     x[5]
 #     return "Hello World!"
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,If-Modified-Since')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,OPTIONS')
+    return response
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
@@ -150,9 +172,30 @@ def data_create_message():
   else:
     return model['data'], 200
   return
+
+
 @tracer.start_as_current_span("home.calls")
 @app.route("/api/activities/home", methods=['GET'])
 def data_home():
+  if request.method == 'OPTIONS':
+        return '', 204
+      # Try multiple ways of retrieving the header
+  headers = dict(request.headers)
+  environ_auth = request.environ.get('HTTP_AUTHORIZATION')
+  direct_auth = request.headers.get('Authorization')
+
+  app.logger.info(f"Headers: {headers}")
+  app.logger.info(f"Request.environ.get: {environ_auth}")
+  app.logger.info(f"Request.headers.get: {direct_auth}")
+
+  # Use whatever works
+  auth_header = direct_auth or environ_auth
+
+  if not auth_header or not auth_header.startswith("Bearer "):
+      return {"error": "Unauthorized"}, 401
+
+  token = auth_header.split(" ")[1]
+  app.logger.info(f"Token: {token}")
   # data = HomeActivities.run(logger=LOGGER)
   data = HomeActivities.run()
   with tracer.start_as_current_span(name="hello"):
