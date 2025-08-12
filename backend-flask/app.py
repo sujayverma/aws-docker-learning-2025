@@ -35,6 +35,7 @@ import boto3
 import rollbar
 import rollbar.contrib.flask
 from flask import got_request_exception
+from libs.cognito_jwt import CognitoJwt
 
 import logging
 
@@ -184,18 +185,27 @@ def data_home():
   environ_auth = request.environ.get('HTTP_AUTHORIZATION')
   direct_auth = request.headers.get('Authorization')
 
-  app.logger.info(f"Headers: {headers}")
-  app.logger.info(f"Request.environ.get: {environ_auth}")
-  app.logger.info(f"Request.headers.get: {direct_auth}")
+  # app.logger.info(f"Headers: {headers}")
+  # app.logger.info(f"Request.environ.get: {environ_auth}")
+  # app.logger.info(f"Request.headers.get: {direct_auth}")
 
   # Use whatever works
   auth_header = direct_auth or environ_auth
 
-  if not auth_header or not auth_header.startswith("Bearer "):
-      return {"error": "Unauthorized"}, 401
+  # if not auth_header or not auth_header.startswith("Bearer "):
+  #     return {"error": "Unauthorized"}, 401
+  if auth_header:
+    congnito = CognitoJwt(auth_header)
+    token = congnito.token
+    app.logger.info(f"Token: {token}")
 
-  token = auth_header.split(" ")[1]
-  app.logger.info(f"Token: {token}")
+    claims = congnito.verify_cognito_token()
+    app.logger.info(f"Authenticated user: {claims['sub']}")
+  # try:
+  #   claims = congnito.verify_cognito_token()
+  #   app.logger.info(f"Authenticated user: {claims['sub']}")
+  # except Exception as e:
+  #   return {"error": str(e)}, 401
   # data = HomeActivities.run(logger=LOGGER)
   data = HomeActivities.run()
   with tracer.start_as_current_span(name="hello"):
