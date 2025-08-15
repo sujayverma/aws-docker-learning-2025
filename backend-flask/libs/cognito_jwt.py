@@ -40,17 +40,23 @@ class CognitoJwt:
 
         # Get claims without verification (for expiry check)
         claims = jwt.get_unverified_claims(self.token)
-
+        # print(f'This is Claims: {claims}')
         # Expiration check
+        # return {
+        #     "claims": claims,
+        #     "client_id": CLIENT_ID,
+        #     "aud": claims.get("aud")
+        # }
         if claims["exp"] < int(time.time()):
             raise Exception("Token is expired")
-
+        # print(f'This is Claims GET: {claims.get("aud")}')
+        # print(f'This is Client ID: {CLIENT_ID}')
         # Audience check
-        if claims.get("aud") != CLIENT_ID:
+        if claims.get("client_id") != CLIENT_ID:
             raise Exception("Token was not issued for this audience")
 
          # Verify the signature
-        message, encoded_sig = str(token).rsplit(".", 1)
+        message, encoded_sig = str(self.token).rsplit(".", 1)
         decoded_sig = base64url_decode(encoded_sig.encode("utf-8"))
 
         if not public_key.verify(message.encode("utf-8"), decoded_sig):

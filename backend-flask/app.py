@@ -191,22 +191,21 @@ def data_home():
 
   # Use whatever works
   auth_header = direct_auth or environ_auth
-
+  app.logger.info(f"AUTH HEADER VALUE: {auth_header}")
+  
+  congnito = CognitoJwt(auth_header)
+  token = congnito.token
   # if not auth_header or not auth_header.startswith("Bearer "):
   #     return {"error": "Unauthorized"}, 401
-  if auth_header:
-    congnito = CognitoJwt(auth_header)
-    token = congnito.token
+  if token != 'null':
     app.logger.info(f"Token: {token}")
-
+    app.logger.info('HELLLLO')
     claims = congnito.verify_cognito_token()
+    # app.logger.info(f'THIS IS THE INFO: {claims}')
+    # app.logger.info(f'THIS IS THE Claims iD: {claims["claims"]["client_id"]}')
+    # app.logger.info(f'THIS IS THE Claims iD: {claims["client_id"]}')
     app.logger.info(f"Authenticated user: {claims['sub']}")
-  # try:
-  #   claims = congnito.verify_cognito_token()
-  #   app.logger.info(f"Authenticated user: {claims['sub']}")
-  # except Exception as e:
-  #   return {"error": str(e)}, 401
-  # data = HomeActivities.run(logger=LOGGER)
+
   data = HomeActivities.run()
   with tracer.start_as_current_span(name="hello"):
     span = trace.get_current_span()
