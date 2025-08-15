@@ -55,10 +55,10 @@ export default function HomeFeedPage() {
 
   // check if we are authenicated
 const checkAuth = async () => {
-  const { username, userId, signInDetails } = await getCurrentUser();
+  const { username, userId, signInDetails, name } = await getCurrentUser();
   console.log(await getCurrentUser());
   setUser({
-        display_name: username,
+        display_name: name,
         handle: username
   });
   

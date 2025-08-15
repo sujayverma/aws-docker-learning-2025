@@ -41,7 +41,7 @@ export default function NotificationFeedPage() {
     if (Cookies.get('user.logged_in')) {
       setUser({
         display_name: Cookies.get('user.name'),
-        handle: Cookies.get('user.username')
+        handle: Cookies.get('user.name')
       })
     }
   };
