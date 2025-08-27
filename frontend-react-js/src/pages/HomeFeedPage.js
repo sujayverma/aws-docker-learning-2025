@@ -7,7 +7,7 @@ import ActivityFeed from '../components/ActivityFeed';
 import ActivityForm from '../components/ActivityForm';
 import ReplyForm from '../components/ReplyForm';
 import { Auth } from 'aws-amplify';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 
 // [TODO] Authenication
 import Cookies from 'js-cookie'
@@ -55,11 +55,12 @@ export default function HomeFeedPage() {
 
   // check if we are authenicated
 const checkAuth = async () => {
-  const { username, userId, signInDetails, name } = await getCurrentUser();
-  console.log(await getCurrentUser());
+  const { username, userId, signInDetails} = await getCurrentUser();
+  console.log(await fetchUserAttributes());
+  const { name, preferred_username } = await fetchUserAttributes();
   setUser({
         display_name: name,
-        handle: username
+        handle: preferred_username
   });
   
 };
