@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from opentelemetry import trace
+from libs.db import pool
 
 tracer=trace.get_tracer('home.activities')
 
@@ -49,7 +50,15 @@ class HomeActivities:
         'likes': 0,
         'replies': []
       }]
-      
+      sql="""
+      SELECT * FROM activities
+      """
+      with pool.connection() as conn:
+        with conn.cursor() as cur:
+          cur.execute(sql)
+          rows = cur.fetchone()
+      print('HHHHHHHHHHHHHHH')
+      print(rows)
       span.set_attribute("app.result_count", len(results))
       return results
 
