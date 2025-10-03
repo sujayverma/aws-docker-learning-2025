@@ -1,0 +1,41 @@
+{
+    "database.connections": {
+        "1759487388078": {
+            "key": "1759487388078",
+            "host": "127.0.0.1",
+            "port": 5432,
+            "user": "postgres",
+            "password": "password",
+            "timezone": "+00:00",
+            "useSSL": false,
+            "isCluster": false,
+            "clientCertPath": null,
+            "clientKeyPath": null,
+            "ssh": {
+                "host": "",
+                "privateKeyPath": "/home/gitpod/.ssh/id_rsa",
+                "port": 22,
+                "username": "root",
+                "type": "password",
+                "connectTimeout": 10000,
+                "algorithms": {
+                    "cipher": []
+                }
+            },
+            "usingSSH": false,
+            "esAuth": "none",
+            "encoding": "utf8",
+            "showHidden": false,
+            "connectionKey": "database.connections",
+            "global": false,
+            "dbType": "PostgreSQL",
+            "connectionUrl": "",
+            "encrypt": false,
+            "dbPath": "",
+            "authType": "default",
+            "disable": true,
+            "includeDatabases": null,
+            "database": "cruddur"
+        }
+    }
+}
