@@ -33,7 +33,7 @@
             "encrypt": false,
             "dbPath": "",
             "authType": "default",
-            "disable": true,
+            "disable": false,
             "includeDatabases": null,
             "database": "cruddur"
         }
