@@ -76,6 +76,7 @@ class HomeActivities:
       # print(json[0])
       span.set_attribute("app.result_count", len(json[0]))
       return json[0]
+      # return results
 
 # class HomeActivities:
 #   def run():

@@ -1,5 +1,7 @@
 import uuid
 from datetime import datetime, timedelta, timezone
+from libs.db import pool, query_wrap_array, print_sql_err
+
 class CreateActivity:
   def run(message, user_handle, ttl):
     model = {
@@ -8,6 +10,7 @@ class CreateActivity:
     }
 
     now = datetime.now(timezone.utc).astimezone()
+    
 
     if (ttl == '30-days'):
       ttl_offset = timedelta(days=30) 
@@ -49,3 +52,24 @@ class CreateActivity:
         'expires_at': (now + ttl_offset).isoformat()
       }
     return model
+  
+  def create_activity(user_uuid, message, expires_at):
+    sql = query_wrap_array("""
+            INSERT INTO activities (user_uuid, message, expires_at)
+            VALUES(%s, %s, %s)
+            """)
+    try:
+      conn = pool.connection()
+      cur = conn.cursor()
+      cur.execute(sql, (user_uuid, message, expires_at))
+      conn.commit()
+    except (Exception) as error:
+      print_sql_err(error)
+      conn.rollback()
+    finally:
+      if conn is not None:
+        cur.close()
+        conn.close()
+    
+
+   

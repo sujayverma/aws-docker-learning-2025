@@ -19,6 +19,7 @@ export default function SignupPage() {
   const onsubmit = async (event) => {
     event.preventDefault();
     console.log('SignupPage.onsubmit')
+    const navigation = useNavigation();
     // [TODO] Authenication
     // Cookies.set('user.name', name)
     // Cookies.set('user.username', username)
@@ -28,14 +29,23 @@ export default function SignupPage() {
 
     try {
       await signUp({
-        username,
+        // username,
+        // password,
+        // email,
+        // name,
+        // emails: email,
+        // attributes: {
+        //   // 'emails': email,               // custom attribute?
+        //   'name.formatted': name     // custom attribute?
+        // }
+        username,         // usually email or chosen username
         password,
-        email,
-        name,
-        emails: email,
-        attributes: {
-          // 'emails': email,               // custom attribute?
-          'name.formatted': name     // custom attribute?
+        options: {
+          userAttributes: {
+            email: email,
+            name: name,
+            preferred_username: name
+          },
         }
       });
       
