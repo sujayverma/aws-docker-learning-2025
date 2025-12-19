@@ -10,7 +10,9 @@ COPY requirements.txt requirements.txt
 
 # Inside the container
 # Install the python libraries.
-RUN pip install -r requirements.txt
+# RUN pip install -r requirements.txt
+
+RUN pip install --no-cache-dir --default-timeout=100 -r requirements.txt
 
 # Outside the container  --> Inside Container
 # . means everything in the current directory

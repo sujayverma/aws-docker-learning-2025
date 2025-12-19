@@ -18,8 +18,7 @@ export default function SignupPage() {
 
   const onsubmit = async (event) => {
     event.preventDefault();
-    console.log('SignupPage.onsubmit')
-    const navigation = useNavigation();
+    console.log('SignupPage.onsubmit');
     // [TODO] Authenication
     // Cookies.set('user.name', name)
     // Cookies.set('user.username', username)

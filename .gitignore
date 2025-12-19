@@ -1,2 +1,9 @@
 notes
 journal
+.venv
+.git
+.vscode
+docker\dynamodb
+venv
+.env
+

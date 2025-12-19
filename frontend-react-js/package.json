@@ -45,6 +45,6 @@
     ]
   },
   "devDependencies": {
-    "aws-amplify": "^6.15.0"
+    "aws-amplify": "^6.15.7"
   }
 }
