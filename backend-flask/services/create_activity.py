@@ -1,7 +1,5 @@
-import uuid
 from datetime import datetime, timedelta, timezone
-from libs.db import pool, query_wrap_array, print_sql_err
-
+from libs.db import db as Db
 class CreateActivity:
   def run(message, user_handle, ttl):
     model = {
@@ -43,33 +41,39 @@ class CreateActivity:
         'message': message
       }   
     else:
-      model['data'] = {
-        'uuid': uuid.uuid4(),
-        'display_name': 'Andrew Brown',
-        'handle':  user_handle,
-        'message': message,
-        'created_at': now.isoformat(),
-        'expires_at': (now + ttl_offset).isoformat()
-      }
+      expire_at = (now + ttl_offset)
+      print('User handle: ', user_handle)
+      print('Message: ', message)
+      print('Expire at: ', expire_at)
+      uuid = CreateActivity.create_activity(user_handle, message, expire_at)
+      object_json = CreateActivity.query_object_activity(uuid)
+      model['data'] = object_json
     return model
   
-  def create_activity(user_uuid, message, expires_at):
-    sql = query_wrap_array("""
-            INSERT INTO activities (user_uuid, message, expires_at)
-            VALUES(%s, %s, %s)
-            """)
+  def create_activity(handle, message, expires_at):
+    sql = Db.template('activities','create_activities')
     try:
-      conn = pool.connection()
-      cur = conn.cursor()
-      cur.execute(sql, (user_uuid, message, expires_at))
-      conn.commit()
+      uuid = Db.query_commit(sql, {
+        'handle': handle,
+        'message': message,
+        'expires_at': expires_at
+      })
+      return uuid
     except (Exception) as error:
-      print_sql_err(error)
-      conn.rollback()
-    finally:
-      if conn is not None:
-        cur.close()
-        conn.close()
+      Db.print_sql_err(error)
+    # finally:
+    #   if conn is not None:
+    #     cur.close()
+    #     conn.close()
+  
+  def query_object_activity(uuid):
+    sql = Db.template('activities','query_object_activity')
     
+    return Db.query_object_json(sql, {
+      'uuid': uuid
+    })
+
+    
+  
 
    
